@@ -1,41 +1,13 @@
-#Maybe class is not necessary but we need to somehow collect:
-#The number of indexed documents;
-#The number of unique tokens;
-#The total size (in KB) of your index on disk.
 import os
 
+def generate_analytics_report(index_file, url_mapping):
+    num_documents = len(url_mapping)
+    unique_tokens = sum(1 for _ in open(index_file))
+    index_size = os.path.getsize(index_file) / 1024 
 
-class Analyitics:
-    def __init__(self, index_file):
-        self._document_count = 0
-        self._token_count = 0
-        self._index_size = 0
-        self.set_document_count()
-        self.set_token_count(index_file)
-        self.set_index_size(index_file)
-
-    def set_document_count(self):
-        with open("url_mapping.txt", "r") as mapping:
-            for lines in mapping:
-                self._document_count += 1
-
-    def set_token_count(self, index_file):
-        with open(index_file, "r") as index:
-            for key in index:
-                self._token_count += 1
-
-    def set_index_size(self, index_file):
-        file_size = os.path.getsize(index_file)
-        file_size / 1024
-        self._index_size = file_size
-
-    def get_document_count(self):
-        return self._document_count
-
-    def get_token_count(self):
-        return self._token_count
+    with open("analytics_report.txt", "w") as report:
+        report.write(f"Number of Indexed Documents: {num_documents}\n")
+        report.write(f"Number of Unique Tokens: {unique_tokens}\n")
+        report.write(f"Total Index Size: {index_size:.2f} KB\n")
     
-    def get_index_size(self):
-        return self._index_size
-        
-        # to get size of file : file_size = os.path.getsize(file_path)
+    print("Analytics report generated.")
