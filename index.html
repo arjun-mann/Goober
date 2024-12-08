@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goober Search</title>
+  <style>
+    /* General styles */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Large logo */
+    .large-logo {
+      font-size: 80px;
+      font-weight: bold;
+      text-align: center;
+      display: inline-block;
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 100%;
+      background-position: 0 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      margin-top: 30px;
+      cursor: pointer;
+    }
+
+    /* Small logo (initially hidden) */
+    .small-logo {
+      font-size: 30px;
+      font-weight: bold;
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: none;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    /* Centered container */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    #search-bar {
+      width: 50%;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #search-btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Results styling */
+    .results-container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .result-box {
+      width: 80%;
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .result-box a {
+      text-decoration: none;
+      color: #007BFF;
+    }
+
+    /* No results message styling */
+    .no-results-message {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #777;
+    }
+
+    .cookie-image {
+      margin-top: 5px;
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <!-- Large logo (visible initially) -->
+  <div class="large-logo" id="large-logo">Goober</div>
+
+  <!-- Small logo (hidden initially) -->
+  <div class="search-container" id="search-container">
+    <div class="small-logo" id="small-logo">Goober</div>
+    <input type="text" id="search-bar" placeholder="Type your search here...">
+    <button id="search-btn">Enter</button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-container" id="results"></div>
+
+  <!-- No results message and cookie image (hidden initially) -->
+  <div class="no-results-message" id="no-results-message" style="display:none;">
+    <p>No results found, empathy cookie for you!</p>
+    <img src="static/images/cookie.jpg" alt="Empathy Cookie" class="cookie-image">
+  </div>
+
+  <script>
+    // Function to reset the page
+    function resetPage() {
+      location.reload(); // Reload the current page
+    }
+
+    // Add event listeners for both logos to reset the page
+    document.getElementById("large-logo").addEventListener("click", resetPage);
+    document.getElementById("small-logo").addEventListener("click", resetPage);
+
+    // Function to handle the search logic
+    async function handleSearch() {
+      const query = document.getElementById("search-bar").value;
+      
+      // Hide the large logo and show the small logo
+      document.getElementById("large-logo").style.display = "none";
+      document.getElementById("small-logo").style.display = "block";
+
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+      });
+      const urls = await response.json();
+
+      const resultsContainer = document.getElementById("results");
+      const noResultsMessage = document.getElementById("no-results-message");
+      resultsContainer.innerHTML = ""; // Clear previous results
+      noResultsMessage.style.display = "none"; // Hide no results message initially
+
+      // Check if there are results
+      if (urls.length === 0) {
+        noResultsMessage.style.display = "block"; // Show no results message
+      } else {
+        urls.forEach((url, index) => {
+          const resultBox = document.createElement("div");
+          resultBox.className = "result-box";
+          resultBox.innerHTML = `<strong>${index + 1}. </strong><a href="${url}" target="_blank">${url}</a>`;
+          resultsContainer.appendChild(resultBox);
+        });
+      }
+    }
+
+    // Add event listener to the "Enter" button
+    document.getElementById("search-btn").addEventListener("click", handleSearch);
+
+    // Add event listener to detect the "Enter" keypress in the search bar
+    document.getElementById("search-bar").addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        handleSearch();
+      }
+    });
+  </script>
+</body>
+</html>
