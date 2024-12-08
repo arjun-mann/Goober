@@ -14,8 +14,9 @@ export default async function getSearchResults(query: string): Promise<string[]>
   const docs = 55391; // Number of documents in your dataset
   const indexPath = path.join(process.cwd(), '../final_indicies');
   const urlMappingFile = path.join(process.cwd(), '../url_mapping.json');
-  console.log(indexPath);
-  console.log(urlMappingFile);
+
+  console.log('Index Path:', indexPath);
+  console.log('URL Mapping Path:', urlMappingFile);
 
   // Initialize structures
   const q: Record<string, number> = {};
@@ -27,9 +28,9 @@ export default async function getSearchResults(query: string): Promise<string[]>
     const mapping: UrlMapping = JSON.parse(fs.readFileSync(urlMappingFile, 'utf8'));
 
     // Load index file
-    const tags: Tags = JSON.parse(fs.readFileSync(path.join(indexPath, 'index_0.json'), 'utf8'));
+    const tags: Tags = JSON.parse(fs.readFileSync(path.join(indexPath, '../final_indicies/index_0.json'), 'utf8'));
 
-    // Tokenize query
+    // Tokenize the query
     const tokens = tokenize(query);
 
     // Compute token frequencies
@@ -45,12 +46,13 @@ export default async function getSearchResults(query: string): Promise<string[]>
     // Compute scores for documents
     for (let i = 0; i < tokenFreq.length; i++) {
       const token = tokenFreq[i][0];
+
       if (i === 0) {
         // Process the first token (most specific)
         for (let j = 0; j < 50; j++) {
           try {
             const posting = tags[token][j];
-            q[posting[0]] = posting[2];
+            q[posting[0]] = posting[2]; // Initialize score for this document
           } catch (error) {
             continue;
           }
@@ -59,7 +61,7 @@ export default async function getSearchResults(query: string): Promise<string[]>
         // Process subsequent tokens
         tags[token].forEach((posting) => {
           if (q[posting[0]]) {
-            q[posting[0]] += posting[2];
+            q[posting[0]] += posting[2]; // Increment the score
           }
         });
       }
@@ -67,7 +69,7 @@ export default async function getSearchResults(query: string): Promise<string[]>
 
     // Sort results by score (descending) and take the top 10
     const sortedResults = Object.entries(q)
-      .sort((a, b) => b[1] - a[1])
+      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
       .slice(0, 10)
       .map(([docId]) => docId);
 
