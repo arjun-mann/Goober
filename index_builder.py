@@ -6,6 +6,8 @@ from collections import defaultdict
 from heapq import heappush, heappop
 from itertools import groupby
 import re
+from urllib.parse import urlparse
+
 def build_index(data_dir, stemmer):
     """
     Builds an inverted index from a set of JSON files containing web page data.
@@ -105,6 +107,27 @@ def build_index(data_dir, stemmer):
     write_partial_index(index, doc_id)  # Write any remaining index data
     write_url_mapping(url_mapping)
 
+def is_valid(posting, mapping):
+    BAD_PATHS = [
+    "/pdf/", "/doc/","/viewdoc/","/uploads/","/upload/","/Homeworks/","/hw/","/wp-content/","/comments/",
+    "/events/", "/event/", "/calendar/",
+    "/tree/","/-/"
+    ]
+
+    url = mapping[str(posting[0])][0]
+    parsed = urlparse(url)
+    if any(path in url for path in BAD_PATHS):
+        return False
+    return not re.match(
+            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|php|htm"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|java|webp"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
 def postprocess_index():
      index_dir = './partial_indexes'
@@ -112,7 +135,11 @@ def postprocess_index():
          with open(f'./final_indicies/index_{i}.json', "w") as f:
             data = {}
             json.dump(data,f)
-     
+     mapping = {}
+     with open('url_mapping.json', "r") as f:
+         data = json.load(f)
+         mapping = data
+
      for root, _, files in os.walk(index_dir):
         print("Currently postprocessing index with directory:", root)
         for file_name in files:
@@ -125,6 +152,7 @@ def postprocess_index():
                         sorted_data = {}
                         for keys in data:
                             #sort based on tag score
+                            data[keys] = [posting for posting in data[keys] if is_valid(posting, mapping)]
                             data[keys].sort(key=lambda x: (x[2],x[1]),reverse = True)
                             sorted_data[keys] = data[keys]
 
@@ -139,6 +167,8 @@ def postprocess_index():
                         alpha = [{} for _ in range(6)]
                         data = json.load(file)  # Load dict "data" from json
                         for key in data:
+                            data[key] = [posting for posting in data[key] if is_valid(posting, mapping)]
+
                             #alphabetic buckets
                             if key.isnumeric():
                                 data[key].sort(key=lambda x: x[1], reverse=True)
