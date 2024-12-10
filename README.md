@@ -21,3 +21,10 @@ npm install
 npm run dev
 ```
 Open your local host and query away!
+
+# Method 3: Terminal Access
+```bash
+# Make sure you are in the root directory
+git clone https://github.com/arjun-mann/Goober.git
+python query.py
+```
