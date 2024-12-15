@@ -9,7 +9,6 @@ if __name__ == "__main__":
       # Initialize a stemmer for token processing
       stemmer = SnowballStemmer("english")
 
-
       # Build the index and URL mapping from the provided data directory
       print("Building index...")
       build_index(data_dir, stemmer)

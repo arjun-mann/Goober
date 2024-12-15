@@ -12,7 +12,6 @@ def generate_analytics_report(index_path, url_mapping):
     with open(url_mapping, 'r') as f:
         data = json.load(f)
         num_documents = len(data)
-    #num_documents = len(url_mapping)  # Count of indexed documents
     unique_tokens = 0
     index_size = 0
     for root, _, files in os.walk(index_path):
@@ -26,8 +25,6 @@ def generate_analytics_report(index_path, url_mapping):
                 data1 = json.load(file)
             unique_tokens += len(data1)
             index_size += os.path.getsize(file_path) / 1024  # Size of the index file in KB
-
-    #unique_tokens = sum(1 for _ in open(index_file))  # Count of unique tokens by lines in index file
 
     # Write the analytics report to a text file
     with open("analytics_report.txt", "w", encoding='utf-8') as report:
