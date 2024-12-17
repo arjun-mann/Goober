@@ -8,7 +8,7 @@ from collections import defaultdict
 
 
 if __name__ == "__main__":
-    docs = 55391
+    docs = 43717
     stemmer = SnowballStemmer("english")
     q = {}
     tags = {}
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     for i in range(0,len(token_freq)):
         max_tag = 1
         if (i == 0):
-            for j in range(55391):
+            for j in range(docs):
                 try:
                     posting = tags[token_freq[i][0]][j]
                     if j == 0: 

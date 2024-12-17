@@ -3,9 +3,8 @@ import json
 from bs4 import BeautifulSoup
 from tokenizer import tokenize
 from collections import defaultdict
-from heapq import heappush, heappop
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 def build_index(data_dir, stemmer):
     """
@@ -107,13 +106,14 @@ def build_index(data_dir, stemmer):
 
 def is_valid(posting, mapping):
     BAD_PATHS = [
-    "/pdf/", "/doc/","/viewdoc/","/uploads/","/upload/","/Homeworks/","/hw/","/wp-content/","/comments/",
+    "/pdf/", "/doc/","/viewdoc/","/uploads/","/upload/","/homeworks/", "/Homeworks/","/hw/","/wp-content/","/comments/",
     "/events/", "/event/", "/calendar/",
     "/tree/","/-/"
     ]
 
     url = mapping[str(posting[0])][0]
     parsed = urlparse(url)
+    decoded_path = unquote(parsed.path)
     if any(path in url for path in BAD_PATHS):
         return False
     return not re.match(
@@ -125,7 +125,7 @@ def is_valid(posting, mapping):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|java|webp"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)(~)?$", decoded_path.lower())
 
 def postprocess_index():
      index_dir = './partial_indexes'
@@ -139,7 +139,6 @@ def postprocess_index():
          mapping = data
 
      for root, _, files in os.walk(index_dir):
-        print("Currently postprocessing index with directory:", root)
         for file_name in files:
             file_path = os.path.join(root, file_name)
             if file_name == "index_part_0.json":
@@ -194,7 +193,7 @@ def postprocess_index():
                                 f.seek(0)
                                 json.dump(new,f)
                                 f.truncate()
-                        print (f'done with {file_name}')
+                        print (f'Finished postprocessing {file_name}')
                     except json.JSONDecodeError:
                         continue
 
