@@ -67,7 +67,13 @@ if __name__ == "__main__":
                     posting = tags[token_freq[i][0]][j]
                     if j == 0: 
                         max_tag = posting[2]
-                    q[posting[0]] = (log(posting[2]) + log(docs/token_freq[i][1])) *posting[2]/max_tag
+                    print("posting[2]: ", posting[2], " max_tag: ", max_tag, " tf: ", token_freq[i][1], " docs: ", docs)
+
+                    q[posting[0]] = (log(posting[2]) + log(docs/token_freq[i][1])) * posting[2]/max_tag
+                    print(f"The equation is {log(posting[2])} + {log(docs/token_freq[i][1])} * {posting[2]/max_tag} = {q[posting[0]]}")
+
+                    test_number = (1 + log(token_freq[i][1]) + log(docs/token_freq[i][1])) * posting[2]/max_tag #posting[2]/max_tag does not work because the more a token appears the less the score which should be opposite (to what extent is another thing)
+                    print(f"New equation is {1 + log(token_freq[i][1])} + {log(docs/token_freq[i][1])} * {posting[2]/max_tag} = {test_number}")
                 except:
                     continue
         else:

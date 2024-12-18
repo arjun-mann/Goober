@@ -58,13 +58,15 @@ def build_index(data_dir, stemmer):
                                 tokens = tokenize(text,stemmer)
                                 for token in tokens:
                                     if token in token_dict:
-                                        token_dict[token][0] +=1 #frequency
+                                        token_dict[token][0] += 1 #frequency
                                         if(isinstance(tag, str)):
-                                            if (tag == "title" or "header"):
-                                                token_dict[token][1] +=20 #scoring important tags, 
-                                                #title/header being most important, h2 2nd, and bold/strong 3rd
-                                            elif (tag == "h1" or "h2"):
+                                            if (tag == "title"):
+                                                token_dict[token][1] += 50 #scoring important tags, 
+                                                #title being most important, h2 2nd, and bold/strong 3rd
+                                            elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
                                                 token_dict[token][1] += 10
+                                            elif (tag == "b" or "strong"):
+                                                token_dict[token][1] += 3
                                             else:
                                                 token_dict[token][1] += 1
                                     else:

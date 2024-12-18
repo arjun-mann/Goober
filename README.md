@@ -33,5 +33,6 @@ Open your local host and query away!
 ```bash
 # Make sure you are in the root directory
 git clone https://github.com/arjun-mann/Goober.git
+pip install nltk
 python query.py
 ```
