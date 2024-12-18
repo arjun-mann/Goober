@@ -11,14 +11,14 @@ def normalize_url(url_str):
 def preprocess_urls(data_dir):
     """
     Pre-processes the data directory by removing duplicate URLs after defragmenting and dequerying.
-    Deletes files that contain URLs which are duplicates after normalization.
+    Modifies JSON files to store normalized URLs and deletes duplicate files.
     """
     seen_urls = {}  # Maps normalized URL to (original_file_path, original_url)
     files_to_delete = set()
+    modified_files = set()  # Track which files need URL updates
     
-    # First pass: identify duplicates
+    # First pass: identify duplicates and files needing URL normalization
     for root, _, files in os.walk(data_dir):
-        print("Currently preprocessing data with directory:", root)
         for file_name in files:
             file_path = os.path.join(root, file_name)
             try:
@@ -26,6 +26,10 @@ def preprocess_urls(data_dir):
                     data = json.load(file)
                     original_url = data["url"]
                     normalized_url = normalize_url(original_url)
+                    
+                    # Check if URL needs normalization
+                    if original_url != normalized_url:
+                        modified_files.add((file_path, normalized_url))
                     
                     if normalized_url in seen_urls:
                         # This is a duplicate after normalization
@@ -39,7 +43,21 @@ def preprocess_urls(data_dir):
                 print(f"Error processing file {file_path}: {str(e)}")
                 continue
     
-    # Second pass: delete duplicate files
+    # Second pass: update URLs in files that need normalization
+    for file_path, normalized_url in modified_files:
+        if file_path not in files_to_delete:  # Don't modify files we're going to delete
+            try:
+                with open(file_path, "r", errors="ignore") as file:
+                    data = json.load(file)
+                    data["url"] = normalized_url
+                
+                with open(file_path, "w") as file:
+                    json.dump(data, file)
+                print(f"Updated URL in file: {file_path}")
+            except Exception as e:
+                print(f"Error updating file {file_path}: {str(e)}")
+    
+    # Third pass: delete duplicate files
     for file_path in files_to_delete:
         try:
             os.remove(file_path)
@@ -47,5 +65,8 @@ def preprocess_urls(data_dir):
         except Exception as e:
             print(f"Error deleting file {file_path}: {str(e)}")
     
-    print(f"Pre-processing complete. Removed {len(files_to_delete)} duplicate files.")
+    print(f"Pre-processing complete:")
+    print(f"- Found {len(seen_urls)} unique URLs")
+    print(f"- Updated {len(modified_files)} files with normalized URLs")
+    print(f"- Removed {len(files_to_delete)} duplicate files")
     return len(seen_urls), len(files_to_delete)

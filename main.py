@@ -10,9 +10,13 @@ if __name__ == "__main__":
       # Initialize a stemmer for token processing
       stemmer = SnowballStemmer("english")
 
+      # Preprocess URLs in the data directory (Only run if working with new URL data)
+      #print("Preprocessing URLs...")
+      #preprocess_urls(data_dir)
+
       # Build the index and URL mapping from the provided data directory
-      #print("Building index...")
-      #build_index(data_dir, stemmer)
+      print("Building index...")
+      build_index(data_dir, stemmer)
 
       print("Post processing index...")
       postprocess_index() # postprocess turns partial indexes folder into final indicies folder

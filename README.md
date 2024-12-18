@@ -2,9 +2,10 @@
 a Web search engine from the ground up that is capable of handling tens of thousands of Web pages, under harsh operational constraints and having a query response time under 300ms 
 
 ## Index Analytics
-Number of Indexed Documents: 55391
-Number of Unique Tokens: 981611
-Total Index Size: 135554.03 KB
+Number of Indexed Documents: 43716
+Number of Unique Tokens: 877114
+Total Index Size: 92691.57 KB
+
 
 
 # How It Works
