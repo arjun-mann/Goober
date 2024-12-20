@@ -45,12 +45,8 @@ def build_index(data_dir, stemmer):
                     except Exception as e:
                         print("Error parsing HTML with BeautifulSoup:", e)
                         continue
-                    l = ["title", "header", "h1", "h2", "b", "strong", True]
+                    l = ["title", "header", "h1", "h2", "h3", "b", "strong", True]
                     token_dict = {}
-                    try:
-                        file_title = soup.find(True).get_text(strip=True) # title/header of url to use when returning search results. goest to url_mapping
-                    except:
-                        file_title = ""
                     for tag in l:
                         for element in soup.find_all(tag):
                             text = element.get_text(strip=True)
@@ -71,18 +67,32 @@ def build_index(data_dir, stemmer):
                                                 token_dict[token][1] += 1
                                     else:
                                         if(isinstance(tag, str)):
-                                            if (tag == "title" or "header"):
-                                                token_dict[token] = [1,20] #scoring important tags, 
+                                            if (tag == "title"):
+                                                token_dict[token] = [1, 50] #scoring important tags, 
                                                 #title/header being most important, h2 2nd, and bold/strong 3rd
-                                            elif (tag == "h1" or "h2"):
-                                                token_dict[token] = [1,10]
+                                            elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
+                                                token_dict[token] = [1, 10]    
+                                            elif (tag == "b" or "strong"):
+                                                token_dict[token] = [1, 3]
                                             else:
-                                                token_dict[token] = [1,1]
-                                           
+                                                token_dict[token] = [1, 1]
                                         else:
                                             token_dict[token] = [1,0]
-                            element.decompose() 
+                            if not isinstance(tag, str):  
+                                element.extract()  
+                            else:
+                                element.decompose()  
                         
+                    # Process remaining text content after handling tagged elements
+                    remaining_text = soup.get_text(strip=True)
+                    if remaining_text:
+                        tokens = tokenize(remaining_text, stemmer)
+                        for token in tokens:
+                            if token in token_dict:
+                                token_dict[token][0] += 1  # Increment frequency
+                            else:
+                                token_dict[token] = [1, 0]  # New token with no special tag score
+                    
                     for key in token_dict: # terms with nonzero tag scores will go to both tagged index AND normal index.
                         if (token_dict[key][1]) != 0:
                             tag_index[key].append([doc_id, token_dict[key][0],token_dict[key][1]])
@@ -95,7 +105,7 @@ def build_index(data_dir, stemmer):
                         index.clear()
 
                     # Store document metadata in the URL mapping
-                    url_mapping[doc_id] = (url, file_name, file_title[0:100])
+                    url_mapping[doc_id] = (url, file_name)
                     doc_id += 1  # Increment document ID for the next file
                 except json.JSONDecodeError:
                     # Skip files that aren't properly formatted JSON

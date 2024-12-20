@@ -3,8 +3,8 @@ a Web search engine from the ground up that is capable of handling tens of thous
 
 ## Index Analytics
 Number of Indexed Documents: 43716
-Number of Unique Tokens: 877114
-Total Index Size: 92691.57 KB
+Number of Unique Tokens: 2054645
+Total Index Size: 172686.30 KB
 
 
 
