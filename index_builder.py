@@ -58,7 +58,6 @@ def build_index(data_dir, stemmer):
                                         if(isinstance(tag, str)):
                                             if (tag == "title"):
                                                 token_dict[token][1] += 50 #scoring important tags, 
-                                                #title being most important, h2 2nd, and bold/strong 3rd
                                             elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
                                                 token_dict[token][1] += 10
                                             elif (tag == "b" or "strong"):
@@ -69,7 +68,6 @@ def build_index(data_dir, stemmer):
                                         if(isinstance(tag, str)):
                                             if (tag == "title"):
                                                 token_dict[token] = [1, 50] #scoring important tags, 
-                                                #title/header being most important, h2 2nd, and bold/strong 3rd
                                             elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
                                                 token_dict[token] = [1, 10]    
                                             elif (tag == "b" or "strong"):
@@ -132,8 +130,8 @@ def is_valid(posting, mapping):
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|php|htm"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|php|htm(%23)?"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|xml|ff"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|java|webp"

@@ -48,41 +48,47 @@ if __name__ == "__main__":
             raise
     
 
-    query = input()
+    query = input() #Users query
     start_time = time.perf_counter()
-    tokens = tokenize(query, stemmer)
+    tokens = tokenize(query, stemmer) #Tokenizes users query
     
     for token in tokens:
         try:
-            token_freq.append([token,len(tags[token])])
+            token_freq.append([token, len(tags[token])])
         except:
             continue
     
-    token_freq.sort(key = lambda x: x[1])
-    for i in range(0,len(token_freq)):
-        max_tag = 1
+    token_freq.sort(key = lambda x: x[1], reverse = True)
+    for i in range(0, len(token_freq)): #Looping through queried tokens
         if (i == 0):
-            for j in range(docs):
+            for j in range(0, token_freq[i][1]): #Looping through documents with the current tagged token
                 try:
+                    #print("What is this tag?: ", tags[token_freq[i][0]][j])
                     posting = tags[token_freq[i][0]][j]
-                    if j == 0: 
-                        max_tag = posting[2]
                     
-                    #tf in posting[1] is not correctly being incremented during building of index
-                    print("posting[1]: ", posting[1], "posting[2]: ", posting[2], " max_tag: ", max_tag, " tf: ", token_freq[i][1], " docs: ", docs)
-
-                    q[posting[0]] = (log(posting[2]) + log(docs/token_freq[i][1])) * posting[2]/max_tag
-                    print(f"The equation is {log(posting[2])} + {log(docs/token_freq[i][1])} * {posting[2]/max_tag} = {q[posting[0]]}")
-
-                    test_number = (1 + log(posting[1]) + log(docs/posting[1])) * posting[2]/max_tag #posting[2]/max_tag does not work because the more a token appears the less the score which should be opposite (to what extent is another thing)
-                    print(f"New equation is {1 + log(posting[1])} + {log(docs/posting[1])} * {posting[2]/max_tag} = {test_number}")
+                    # Calculate components separately for clarity
+                    tf = 1 + log(posting[1]) if posting[1] > 0 else 0  # term frequency component
+                    idf = log(docs/token_freq[i][1])  # inverse document frequency
+                    tag_weight = posting[2]  # tag count weight
+                    
+                    # Combine all components
+                    q[posting[0]] = (tf + idf) + tag_weight
+                
+                    #print(f"Document {posting[0]}:")
+                    #print(f"  tf: {posting[1]}, 1 + log(tf): {tf}, idf: {idf}, tag_weight: {tag_weight}")
+                    #print(f"  Final score: {q[posting[0]]}")
                 except:
                     continue
         else:
-            max_tag = tags[token_freq[i][0]][0][2]
+            # For subsequent terms in multi-word queries, add their scores to existing documents
             for p in tags[token_freq[i][0]]:
                 if p[0] in q:
-                    q[p[0]] += (log(p[2]) + log(docs/token_freq[i][1]) )* p[2]/max_tag
+                    tf = 1 + log(p[1]) if p[1] > 0 else 0
+                    idf = log(docs/token_freq[i][1])
+                    tag_weight = p[2]
+                    
+                    # Add the score for this term to the document's existing score
+                    q[p[0]] += (tf + idf) + tag_weight
     
     if (len(token_freq) == 0):
 
@@ -121,5 +127,3 @@ if __name__ == "__main__":
         print(mapping[str(r)][0])
     end_time = time.perf_counter()
     print(f"Time to tokenize query: {end_time - start_time:.6f} seconds")
-
-
