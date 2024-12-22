@@ -57,23 +57,23 @@ def build_index(data_dir, stemmer):
                                         token_dict[token][0] += 1 #frequency
                                         if(isinstance(tag, str)):
                                             if (tag == "title"):
-                                                token_dict[token][1] += 50 #scoring important tags, 
+                                                token_dict[token][1] += 10 #scoring important tags, 
                                             elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
-                                                token_dict[token][1] += 10
+                                                token_dict[token][1] += 2
                                             elif (tag == "b" or "strong"):
-                                                token_dict[token][1] += 3
-                                            else:
                                                 token_dict[token][1] += 1
+                                            else:
+                                                token_dict[token][1] += 0
                                     else:
                                         if(isinstance(tag, str)):
                                             if (tag == "title"):
-                                                token_dict[token] = [1, 50] #scoring important tags, 
+                                                token_dict[token] = [1, 10] #scoring important tags, 
                                             elif (tag == "header") or (tag == ("h1" or "h2" or "h3")):
-                                                token_dict[token] = [1, 10]    
+                                                token_dict[token] = [1, 2]    
                                             elif (tag == "b" or "strong"):
-                                                token_dict[token] = [1, 3]
-                                            else:
                                                 token_dict[token] = [1, 1]
+                                            else:
+                                                token_dict[token] = [1, 0]
                                         else:
                                             token_dict[token] = [1,0]
                             if not isinstance(tag, str):  

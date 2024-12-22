@@ -72,7 +72,7 @@ if __name__ == "__main__":
                     tag_weight = posting[2]  # tag count weight
                     
                     # Combine all components
-                    q[posting[0]] = (tf + idf) + tag_weight
+                    q[posting[0]] = (tf * tag_weight) + idf
                 
                     #print(f"Document {posting[0]}:")
                     #print(f"  tf: {posting[1]}, 1 + log(tf): {tf}, idf: {idf}, tag_weight: {tag_weight}")
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                     tag_weight = p[2]
                     
                     # Add the score for this term to the document's existing score
-                    q[p[0]] += (tf + idf) + tag_weight
+                    q[p[0]] += (tf * tag_weight) + idf
     
     if (len(token_freq) == 0):
 
